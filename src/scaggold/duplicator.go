@@ -18,15 +18,15 @@ type Duplicator struct {
 
 // Utility function
 // Traling slash on right segument
-func trailSlash(path string) string {
+func TrailSlash(path string) string {
 	return strings.TrimRight(path, "/") + "/"
 }
 
 func NewDuplicator(fromPath, toPath string) *Duplicator {
 	return &Duplicator{
-		fromPath:  trailSlash(fromPath),
-		toPath:    trailSlash(toPath),
-		fromRegex: regexp.MustCompile("^" + trailSlash(fromPath)),
+		fromPath:  TrailSlash(fromPath),
+		toPath:    TrailSlash(toPath),
+		fromRegex: regexp.MustCompile("^" + TrailSlash(fromPath)),
 	}
 }
 
@@ -51,7 +51,6 @@ func (d *Duplicator) walkFunc(path string, info os.FileInfo, err error) error {
 
 	// Does walking directory?
 	if info.IsDir() {
-		fmt.Printf("Creating directory %s\n", dest)
 		os.Mkdir(dest, info.Mode())
 		return nil
 	}

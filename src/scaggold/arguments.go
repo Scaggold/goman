@@ -28,6 +28,11 @@ func (a *Arguments) Alias(flag string, value string, defaultValue interface{}) {
 		name:         value,
 		defaultValue: defaultValue,
 	}
+
+	// set defaultValue
+	if defaultValue != nil {
+		a.Options[value] = defaultValue
+	}
 }
 
 func (a *Arguments) Parse(args []string) {
@@ -52,7 +57,7 @@ func (a *Arguments) Parse(args []string) {
 				if len(args[i]) == 2 {
 					if alias.defaultValue == nil {
 						a.Options[alias.name] = true
-					} else if ok := alias.defaultValue.(bool); ok {
+					} else if _, ok := alias.defaultValue.(bool); ok {
 						a.Options[alias.name] = true
 					} else if i+1 < size {
 						a.Options[alias.name] = args[i+1]

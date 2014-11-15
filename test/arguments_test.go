@@ -1,7 +1,7 @@
 package scaggold_test
 
 import (
-	"github.com/Scaggold/goman"
+	"scaggold"
 	"testing"
 )
 
@@ -18,7 +18,7 @@ func TestNewArguments(t *testing.T) {
 func TestAliasWithNextValue(t *testing.T) {
 	args := scaggold.NewArguments()
 
-	args.Alias("f", "foo")
+	args.Alias("f", "foo", "10")
 	args.Parse([]string{"foo", "bar", "-f", "255"})
 
 	if v, ok := args.GetOption("foo"); ok {
@@ -33,7 +33,7 @@ func TestAliasWithNextValue(t *testing.T) {
 func TestAliasWithNoValue(t *testing.T) {
 	args := scaggold.NewArguments()
 
-	args.Alias("f", "foo")
+	args.Alias("f", "foo", nil)
 	args.Parse([]string{"foo", "bar", "-f"})
 
 	if v, ok := args.GetOption("foo"); ok {
@@ -45,10 +45,25 @@ func TestAliasWithNoValue(t *testing.T) {
 	}
 }
 
+func TestAliasWithDefaultValue(t *testing.T) {
+	args := scaggold.NewArguments()
+
+	args.Alias("f", "foo", 255)
+	args.Parse([]string{"foo", "bar"})
+
+	if v, ok := args.GetOption("foo"); ok {
+		if v != 255 {
+			t.Error("Aliased flag parse error. Default value not match")
+		}
+	} else {
+		t.Errorf("Aliase set, but not parsing")
+	}
+}
+
 func TestAliasWithValue(t *testing.T) {
 	args := scaggold.NewArguments()
 
-	args.Alias("f", "foo")
+	args.Alias("f", "foo", nil)
 	args.Parse([]string{"foo", "bar", "-fbar"})
 
 	if v, ok := args.GetOption("foo"); ok {
@@ -63,11 +78,11 @@ func TestAliasWithValue(t *testing.T) {
 func TestGetOptionExists(t *testing.T) {
 	args := scaggold.NewArguments()
 
-	args.Alias("f", "foo")
+	args.Alias("f", "foo", 255)
 	args.Parse([]string{"foo", "bar", "-f"})
 
 	if v, ok := args.GetOption("foo"); ok {
-		if v != true {
+		if v != 255 {
 			t.Errorf("GetOption error. Input is none, actual %s", v)
 		}
 	} else {
@@ -78,7 +93,7 @@ func TestGetOptionExists(t *testing.T) {
 func TestGetOptionNotExists(t *testing.T) {
 	args := scaggold.NewArguments()
 
-	args.Alias("f", "foo")
+	args.Alias("f", "foo", nil)
 	args.Parse([]string{"foo", "bar", "-f"})
 
 	if _, ok := args.GetOption("baz"); ok {
@@ -89,7 +104,7 @@ func TestGetOptionNotExists(t *testing.T) {
 func TestGetCommandExists(t *testing.T) {
 	args := scaggold.NewArguments()
 
-	args.Alias("f", "foo")
+	args.Alias("f", "foo", nil)
 	args.Parse([]string{"foo", "bar", "-f"})
 
 	if cmd, ok := args.GetCommandAt(1); !ok || cmd != "foo" {
@@ -100,7 +115,7 @@ func TestGetCommandExists(t *testing.T) {
 func TestGetCommandNotExists(t *testing.T) {
 	args := scaggold.NewArguments()
 
-	args.Alias("f", "foo")
+	args.Alias("f", "foo", nil)
 	args.Parse([]string{})
 
 	if _, ok := args.GetCommandAt(1); ok {
@@ -111,7 +126,7 @@ func TestGetCommandNotExists(t *testing.T) {
 func TestGetCommands(t *testing.T) {
 	args := scaggold.NewArguments()
 
-	args.Alias("f", "foo")
+	args.Alias("f", "foo", nil)
 	args.Parse([]string{"foo", "bar", "-f"})
 
 	cmds := args.GetCommands()
@@ -122,7 +137,7 @@ func TestGetCommands(t *testing.T) {
 func TestGetCommandSize(t *testing.T) {
 	args := scaggold.NewArguments()
 
-	args.Alias("f", "foo")
+	args.Alias("f", "foo", nil)
 	args.Parse([]string{"foo", "bar", "-f"})
 
 	if size := args.GetCommandSize(); size != 2 {
