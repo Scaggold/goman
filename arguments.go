@@ -4,22 +4,30 @@ import (
 	"strings"
 )
 
+type aliasOption struct {
+	name         string
+	defaultValue interface{}
+}
+
 type Arguments struct {
 	Commands []string
 	Options  map[string]interface{}
-	Aliases  map[string]string
+	Aliases  map[string]aliasOption
 }
 
 func NewArguments() *Arguments {
 	return &Arguments{
 		Commands: []string{},
 		Options:  map[string]interface{}{},
-		Aliases:  map[string]string{},
+		Aliases:  make(map[string]aliasOption),
 	}
 }
 
-func (a *Arguments) Alias(flag, full string) {
-	a.Aliases[flag] = full
+func (a *Arguments) Alias(flag string, value string, defaultValue interface{}) {
+	a.Aliases[flag] = aliasOption{
+		name:         value,
+		defaultValue: defaultValue,
+	}
 }
 
 func (a *Arguments) Parse(args []string) {
@@ -42,16 +50,17 @@ func (a *Arguments) Parse(args []string) {
 
 				// spaced value
 				if len(args[i]) == 2 {
-					if i+1 < size {
-						a.Options[alias] = args[i+1]
-						i++
-					} else {
-						a.Options[alias] = true
+					if alias.defaultValue == nil {
+						a.Options[alias.name] = true
+					} else if ok := alias.defaultValue.(bool); ok {
+						a.Options[alias.name] = true
+					} else if i+1 < size {
+						a.Options[alias.name] = args[i+1]
 					}
 					// alias with value
 				} else {
 					b := []byte(args[i])
-					a.Options[alias] = string(b[2:])
+					a.Options[alias.name] = string(b[2:])
 				}
 
 			}
