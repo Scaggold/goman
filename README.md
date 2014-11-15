@@ -66,4 +66,5 @@ We want to implement these features:
 
 - Post generate script running
 - Configuration with `setting.json`
+- Templates installation switching Local/Remote
 
