@@ -14,6 +14,7 @@ type Duplicator struct {
 	fromPath  string
 	toPath    string
 	fromRegex *regexp.Regexp
+	verbose   bool
 }
 
 // Utility function
@@ -27,7 +28,12 @@ func NewDuplicator(fromPath, toPath string) *Duplicator {
 		fromPath:  TrailSlash(fromPath),
 		toPath:    TrailSlash(toPath),
 		fromRegex: regexp.MustCompile("^" + TrailSlash(fromPath)),
+		verbose:   true,
 	}
+}
+
+func (d *Duplicator) Silent() {
+	d.verbose = false
 }
 
 func (d *Duplicator) Run() bool {
@@ -58,7 +64,9 @@ func (d *Duplicator) walkFunc(path string, info os.FileInfo, err error) error {
 	// Copy file
 	if buffer, err := ioutil.ReadFile(path); err == nil {
 		if err := ioutil.WriteFile(dest, buffer, info.Mode()); err == nil {
-			fmt.Printf("%s ====> %s\n", path, dest)
+			if d.verbose {
+				fmt.Printf("%s ====> %s\n", path, dest)
+			}
 			return nil
 		} else {
 			fmt.Printf("%v\n", err)

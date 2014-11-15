@@ -67,7 +67,7 @@ func initialize(home string) bool {
 	}
 
 	// setting file create
-	if err := ioutil.WriteFile(path+"/setting.json", []byte(""), 0644); err != nil {
+	if err := ioutil.WriteFile(path+"/config.json", []byte("{}"), 0644); err != nil {
 		fmt.Printf("%v\n", err)
 		return false
 	}
