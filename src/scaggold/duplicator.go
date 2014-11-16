@@ -15,6 +15,7 @@ type Duplicator struct {
 	toPath    string
 	fromRegex *regexp.Regexp
 	verbose   bool
+	runnables []string
 }
 
 // Utility function
@@ -43,6 +44,13 @@ func (d *Duplicator) Run() bool {
 		return false
 	}
 
+	for _, file := range d.runnables {
+		cmd := NewCommand("bash")
+		cmd.SendCommand("cd " + d.toPath)
+		cmd.SendCommand(file)
+		cmd.Exec()
+	}
+
 	return true
 }
 
@@ -52,6 +60,9 @@ func (d *Duplicator) walkFunc(path string, info os.FileInfo, err error) error {
 
 	// Skip dotfile
 	if len(rel) > 0 && string(rel[0]) == "." {
+		if string(rel) == ".install" {
+			d.runnables = append(d.runnables, path)
+		}
 		return nil
 	}
 
