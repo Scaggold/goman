@@ -36,7 +36,6 @@ ln -s ./gm /usr/local/bin/gm
 
 ### Usage
 
-
 ##### Getting template set
 
 Getting template-set from repository:
@@ -59,6 +58,13 @@ Will generated template-set these rules:
 
 - dotfile is ignored (e.g. `.git`, `.rc`)
 
+#### More
+
+See command line help
+
+```
+gm help
+```
 
 ### Rooadmap
 

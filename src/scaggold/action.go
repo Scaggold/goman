@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"os"
+	"os/exec"
 	"path"
 	"strings"
 )
@@ -46,6 +47,10 @@ func (a *Action) Execute(args *Arguments) {
 	// consiguration
 	case "config":
 		a.RunConfig(args)
+
+	// update template
+	case "update":
+		a.RunUpdate(args)
 
 	default:
 		fmt.Printf("%s command not found.", cmd)
@@ -163,4 +168,30 @@ func (a *Action) RunConfig(args *Arguments) {
 			fmt.Printf("Undefined config: %s\n", key)
 		}
 	}
+}
+
+func (a *Action) RunUpdate(args *Arguments) {
+	tmpl, ok := args.GetCommandAt(2)
+	if !ok {
+		fmt.Println("Template is not specified. Plaese type `gm update [template_name]`")
+		return
+	}
+
+	if _, err := os.Stat(a.sys + "/" + tmpl); err != nil {
+		fmt.Printf("Template %s not found.\n", tmpl)
+		return
+	} else if _, err := os.Stat(a.sys + "/" + tmpl + "/.git"); err != nil {
+		fmt.Printf("Template %s is not under git version control.\n", tmpl)
+		return
+	}
+
+	cmd := exec.Command("git", "-C", a.sys+"/"+tmpl, "pull")
+
+	fmt.Printf("Updating %s...", tmpl)
+
+	if err := cmd.Run(); err != nil {
+		fmt.Printf("%v\n", err)
+	}
+
+	fmt.Println("done!")
 }
