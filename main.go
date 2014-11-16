@@ -11,6 +11,7 @@ func main() {
 	// parse arguments
 	args := scaggold.NewArguments()
 	args.Alias("h", "help", nil)
+	args.Alias("r", "remote", "")
 	args.Parse(os.Args[1:])
 
 	home := os.Getenv("HOME")

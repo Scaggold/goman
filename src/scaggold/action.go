@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"io/ioutil"
 	"os"
+	"path"
+	"strings"
 )
 
 type Action struct {
@@ -54,12 +56,19 @@ func (a *Action) Execute(args *Arguments) {
 func (a *Action) RunGet(args *Arguments) {
 	tmpl, ok := args.GetCommandAt(2)
 	if !ok {
-		fmt.Println("Template is not specified. Plaese type `gm get [template_name]`")
-		return
+		if remote, ok := args.GetOption("remote"); !ok {
+			fmt.Println("Template is not specified. Plaese type `gm get [template_name]`")
+			return
+		} else {
+			repo, _ := remote.(string)
+			splitted := strings.Split(path.Base(repo), ".")
+			t := NewTemplate()
+			t.GetRemote(repo, a.sys+"/"+splitted[0])
+		}
+	} else {
+		t := NewTemplate()
+		t.Get(tmpl, a.sys+"/"+tmpl)
 	}
-
-	t := NewTemplate()
-	t.Get(tmpl, a.sys+"/"+tmpl)
 }
 
 func (a *Action) RunGenerate(args *Arguments) {

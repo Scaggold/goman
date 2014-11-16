@@ -1,6 +1,7 @@
 package scaggold
 
 import (
+	"bufio"
 	"fmt"
 	"io"
 	"os/exec"
@@ -29,11 +30,20 @@ func (c *Command) Exec() {
 
 	cmd.Start()
 
+	reader := bufio.NewReader(cmdOut)
+
 	fmt.Println("Running install sctipt...")
 
 	for _, c := range c.shells {
 		io.WriteString(writer, c+"\n")
 	}
 
-	cmdOut.Close()
+	var buf []byte
+	for {
+		if num, err := reader.Read(buf); err == io.EOF || num == 0 {
+			cmdOut.Close()
+			break
+		}
+		fmt.Println(buf)
+	}
 }

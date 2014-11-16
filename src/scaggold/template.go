@@ -33,3 +33,23 @@ func (t *Template) Get(name, templateDir string) bool {
 	fmt.Println("done!")
 	return true
 }
+
+func (t *Template) GetRemote(repository, templateDir string) bool {
+	commandArgs := []string{
+		"clone",
+		repository,
+		templateDir,
+	}
+	cmd := exec.Command("git", commandArgs...)
+	cmd.Stdout = os.Stdout
+
+	fmt.Printf("Getting template from %s..", repository)
+
+	if err := cmd.Run(); err != nil {
+		fmt.Printf("%v\n", err)
+		return false
+	}
+
+	fmt.Println("done!")
+	return true
+}

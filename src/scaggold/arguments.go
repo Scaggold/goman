@@ -61,6 +61,7 @@ func (a *Arguments) Parse(args []string) {
 						a.Options[alias.name] = true
 					} else if i+1 < size {
 						a.Options[alias.name] = args[i+1]
+						i++
 					}
 					// alias with value
 				} else {
