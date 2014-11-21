@@ -1,49 +1,47 @@
 package scaggold
 
 import (
-	"bufio"
+	"bytes"
 	"fmt"
-	"io"
 	"os/exec"
+	"strings"
 )
 
 type Command struct {
 	command string
-	shells  []string
+	args    []string
 }
 
 func NewCommand(cmd string) *Command {
-	return &Command{
-		command: cmd,
+	split := strings.Split(cmd, " ")
+	command := &Command{
+		command: split[0],
 	}
+	command.Arg(split[1:]...)
+
+	return command
 }
 
-func (c *Command) SendCommand(command string) {
-	c.shells = append(c.shells, command)
+func (c *Command) Arg(arg ...string) {
+	for _, a := range arg {
+		c.args = append(c.args, a)
+	}
 }
 
 func (c *Command) Exec() {
-	cmd := exec.Command(c.command)
+	cmd := exec.Command(c.command, c.args...)
+	stdout := bytes.NewBuffer(nil)
 
-	writer, _ := cmd.StdinPipe()
-	cmdOut, _ := cmd.StdoutPipe()
+	cmd.Stdout = stdout
 
-	cmd.Start()
-
-	reader := bufio.NewReader(cmdOut)
+	defer func() {
+		out := stdout.Bytes()
+		fmt.Print(string(out))
+	}()
 
 	fmt.Println("Running install sctipt...")
 
-	for _, c := range c.shells {
-		io.WriteString(writer, c+"\n")
-	}
-
-	var buf []byte
-	for {
-		if num, err := reader.Read(buf); err == io.EOF || num == 0 {
-			cmdOut.Close()
-			break
-		}
-		fmt.Println(buf)
+	if err := cmd.Run(); err != nil {
+		fmt.Printf("Error: %v\n", err)
 	}
 }

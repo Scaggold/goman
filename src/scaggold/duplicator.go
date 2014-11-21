@@ -1,6 +1,7 @@
 package scaggold
 
 import (
+	"bufio"
 	"errors"
 	"fmt"
 	"io/ioutil"
@@ -45,10 +46,19 @@ func (d *Duplicator) Run() bool {
 	}
 
 	for _, file := range d.runnables {
-		cmd := NewCommand("bash")
-		cmd.SendCommand("cd " + d.toPath)
-		cmd.SendCommand(file)
-		cmd.Exec()
+		fp, _ := os.Open(file)
+		scanner := bufio.NewScanner(fp)
+		scanner.Scan()
+		shebang := []rune(scanner.Text())
+		if string(shebang[0]) == "#" && string(shebang[1]) == "!" {
+			command := string(shebang[2:])
+			cmd := NewCommand(command)
+			cmd.Arg(file)
+			cmd.Exec()
+		} //cmd := NewCommand("bash")
+		//cmd.SendCommand("cd " + d.toPath)
+		//cmd.SendCommand(file)
+		//cmd.Exec()
 	}
 
 	return true
